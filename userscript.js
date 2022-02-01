@@ -37,18 +37,31 @@ function init () {
     onmessage_backup(m)
   }
 }
+
+let mainSkin = 0
+let instaSkin = 7
+
 function intercept (data) {
   if (data[0] != 2 && data[0] != '2' && data[0] != 'pp') {
-      console.log(...data)
+      console.log("inter" + data)
+  }
+  if(data[0] == '13c'){
+      if(data[1][2] == 0){
+          mainSkin = data[1][1]
+      }
   }
   if (data[0] == 'c') {
     if (data[1][0] == 1) {
-      send('13c', [0, 43, 0])
+      send('13c', [0, 0, 1])
+      send('13c', [0, instaSkin, 0])
     } else {
-      send('13c', [0, 0, 0])
+      send('13c', [0, 11, 1])
+      send('13c', [0, mainSkin, 0])
     }
   }
 }
 function onmessage (data) {
-  console.log(data)
+  if(data[0]!= "33" && data[0]!="a" && data[0]!="pp"){
+    //console.log(data)
+  }
 }
