@@ -48,6 +48,8 @@ let instaSkin = 7
 let rotation = null
 let hp = 100
 
+let spikeType = 6
+
 function intercept (data) {
   if (data[0] != 2 && data[0] != '2' && data[0] != 'pp') {
       if(toggleIntercept){
@@ -65,9 +67,23 @@ function intercept (data) {
         send('13c', [0, 0, 1])
         send('13c', [0, instaSkin, 0])
       } else {
-        send('13c', [0, 11, 1])
-        send('13c', [0, mainSkin, 0])
+        let l = 0
+        const int = setInterval(()=>{
+          if(l == 0){
+            send('13c', [0, 11, 1])
+            send('13c', [0, 53, 0])//turret gear
+          }else if(l == 1){
+            send('13c', [0, mainSkin, 0])
+            clearInterval(int)
+          }
+          l++
+        },100)
       }
+    }
+  }
+  if(data[0] == '6'){
+    if(data[1][0] == 23){
+      spikeType = 7
     }
   }
 }
@@ -79,8 +95,9 @@ function onmessage (data) {
     rotation = data[1][3]
   }
   if(toggleRecive){
-    if(data[0] != 'a' %% data[0]!='33')
-    console.log(...data)
+    if(data[0] != 'a' && data[0]!='33'){
+      console.log(...data)
+    }
   }
 }
 // function loop(){
@@ -103,22 +120,32 @@ document.addEventListener('keypress', (e)=>{
     console.log(toggleRecive)
   }
   if(e.code == "KeyF"){
-    send('5', [6, null])
+    send('5', [spikeType, null])//spike
     send('c', [1, rotation])
     send('c', [0, rotation])
   }
-  if(e.code == "KeyG"){
-    send('5', [6, null])
+  if(e.code == "KeyG"){//four spikes
+    send('33', [0])
+    send('5', [spikeType, null])
     send('c', [1, 0])
     send('c', [0, 0])
-    send('5', [6, null])
+    send('33', [Math.PI/2])
+    send('5', [spikeType, null])
     send('c', [1, Math.PI/2])
     send('c', [0, Math.PI/2])
-    send('5', [6, null])
+    send('33', [Math.PI])
+    send('5', [spikeType, null])
     send('c', [1, Math.PI])
     send('c', [0, Math.PI])
-    send('5', [6, null])
+    send('33', [Math.PI*1.5])
+    send('5', [spikeType, null])
     send('c', [1, Math.PI*1.5])
     send('c', [0, Math.PI*1.5])
   }
+  if(e.code == "KeyV"){
+    send('5', [16, null])//boost pad
+    send('c', [1, rotation])
+    send('c', [0, rotation])
+  }
 })
+
