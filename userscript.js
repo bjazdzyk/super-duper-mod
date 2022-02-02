@@ -7,7 +7,6 @@
 // @run-at      document-start
 // @require     https://cdnjs.cloudflare.com/ajax/libs/msgpack-lite/0.1.26/msgpack.min.js
 // @require  http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js
-// @require  https://gist.github.com/raw/2625891/waitForKeyElements.js
 // ==/UserScript==
 
 // const en = new Uint8Array(Array.from(msgpack.encode('123')))
@@ -40,6 +39,9 @@ function init () {
   }
 }
 
+let toggleRecive = 0
+let toggleIntercept = 0
+
 let toggleInsta = 0
 let mainSkin = 0
 let instaSkin = 7
@@ -48,11 +50,13 @@ let hp = 100
 
 function intercept (data) {
   if (data[0] != 2 && data[0] != '2' && data[0] != 'pp') {
-      console.log(...data)
+      if(toggleIntercept){
+        console.log(...data)
+      }
   }
   if(data[0] == '13c'){
       if(data[1][2] == 0){
-          mainSkin = data[1][1]
+        mainSkin = data[1][1]
       }
   }
   if (data[0] == 'c') {
@@ -66,27 +70,55 @@ function intercept (data) {
       }
     }
   }
-  if(data[0] == '33'){
-    rotation = data[1][0]
-  }
 }
 function onmessage (data) {
   if(data[0] == 'h'){
     hp = data[1][1]
   }
-  // if(data[0]!= "33" && data[0]!="a" && data[0]!="pp"){
-
-  // }
+  if(data[0] == '33'){
+    rotation = data[1][3]
+  }
+  if(toggleRecive){
+    if(data[0] != 'a' %% data[0]!='33')
+    console.log(...data)
+  }
 }
-function loop(){
-  requestAnimationFrame(loop)
-  //console.log(hp)
-}
-loop()
+// function loop(){
+//   requestAnimationFrame(loop)
+//   //console.log(hp)
+// }
+// loop()
 
 document.addEventListener('keypress', (e)=>{
   if(e.code == "KeyI"){
     toggleInsta = (toggleInsta+1)%2
     console.log(toggleInsta)
+  }
+  if(e.code == "KeyP"){
+    toggleIntercept = (toggleIntercept+1)%2
+    console.log(toggleIntercept)
+  }
+  if(e.code == "KeyL"){
+    toggleRecive = (toggleRecive+1)%2
+    console.log(toggleRecive)
+  }
+  if(e.code == "KeyF"){
+    send('5', [6, null])
+    send('c', [1, rotation])
+    send('c', [0, rotation])
+  }
+  if(e.code == "KeyG"){
+    send('5', [6, null])
+    send('c', [1, 0])
+    send('c', [0, 0])
+    send('5', [6, null])
+    send('c', [1, Math.PI/2])
+    send('c', [0, Math.PI/2])
+    send('5', [6, null])
+    send('c', [1, Math.PI])
+    send('c', [0, Math.PI])
+    send('5', [6, null])
+    send('c', [1, Math.PI*1.5])
+    send('c', [0, Math.PI*1.5])
   }
 })
