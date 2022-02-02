@@ -92,7 +92,7 @@ function onmessage (data) {
     hp = data[1][1]
   }
   if(data[0] == '33'){
-    rotation = data[1][3]
+    rotation = data[1][0][3]
   }
   if(toggleRecive){
     if(data[0] != 'a' && data[0]!='33'){
@@ -125,27 +125,45 @@ document.addEventListener('keypress', (e)=>{
     send('c', [0, rotation])
   }
   if(e.code == "KeyG"){//four spikes
-    send('33', [0])
     send('5', [spikeType, null])
     send('c', [1, 0])
     send('c', [0, 0])
-    send('33', [Math.PI/2])
     send('5', [spikeType, null])
     send('c', [1, Math.PI/2])
     send('c', [0, Math.PI/2])
-    send('33', [Math.PI])
     send('5', [spikeType, null])
     send('c', [1, Math.PI])
     send('c', [0, Math.PI])
-    send('33', [Math.PI*1.5])
     send('5', [spikeType, null])
     send('c', [1, Math.PI*1.5])
     send('c', [0, Math.PI*1.5])
   }
-  if(e.code == "KeyV"){
+  if(e.key == "v"){
     send('5', [16, null])//boost pad
     send('c', [1, rotation])
     send('c', [0, rotation])
   }
 })
 
+document.addEventListener('keydown', (e)=>{
+  if(e.key == 'V'){
+    let l = 0
+    const int = setInterval(()=>{
+      if(l == 0){
+        send('33', [rotation])
+        send('5', [16, null])//boost pad
+        send('c', [1, rotation])
+        send('c', [0, rotation])
+      }else if(l == 1){
+        send('5', [spikeType, null])
+        send('c', [1, rotation+Math.PI*0.5])
+        send('c', [0, rotation+Math.PI*0.5])
+        send('5', [spikeType, null])
+        send('c', [1, rotation+Math.PI*1.5])
+        send('c', [0, rotation+Math.PI*1.5])
+        send('33', [null])
+      }
+      l++
+    },50)
+  }
+})
