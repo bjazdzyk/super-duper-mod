@@ -45,9 +45,12 @@ let toggleIntercept = 0
 let toggleInsta = 0
 let mainSkin = 0
 let instaSkin = 7
+let tempSkin = 0
 let rotation = null
 let hp = 100
-
+let position = {}
+let onWater = 0
+let onSnow = 0
 let spikeType = 6
 
 function intercept (data) {
@@ -59,6 +62,7 @@ function intercept (data) {
   if(data[0] == '13c'){
       if(data[1][2] == 0){
         mainSkin = data[1][1]
+        tempSkin = mainSkin
       }
   }
   if (data[0] == 'c') {
@@ -73,11 +77,11 @@ function intercept (data) {
             send('13c', [0, 11, 1])
             send('13c', [0, 53, 0])//turret gear
           }else if(l == 1){
-            send('13c', [0, mainSkin, 0])
+            send('13c', [0, tempSkin, 0])
             clearInterval(int)
           }
           l++
-        },100)
+        },500)
       }
     }
   }
@@ -90,12 +94,43 @@ function intercept (data) {
 function onmessage (data) {
   if(data[0] == 'h'){
     hp = data[1][1]
+    if(hp<=0)
   }
   if(data[0] == '33'){
     rotation = data[1][0][3]
+    position.x = data[1][0][1]
+    position.y = data[1][0][2]
+
+    if(position.y < 7565 && position.y > 6774){//auto flipper
+      if(!onWater){
+        tempSkin = 31
+        send('13c', [0, 31, 0])
+        onWater = 1
+      }
+    }else{
+      if(onWater){
+        tempSkin = mainSkin
+        send('13c', [0, mainSkin, 0])
+        onWater = 0
+      }
+    }
+    if(position.y < 2440){//auto winter hat
+      if(!onSnow){
+        tempSkin = 15
+        send('13c', [0, 15, 0])
+        onSnow = 1
+      }
+    }else{
+      if(onSnow){
+        tempSkin = mainSkin
+        send('13c', [0, mainSkin, 0])
+        onSnow = 0
+      }
+    }
+
   }
   if(toggleRecive){
-    if(data[0] != 'a' && data[0]!='33'){
+    if(data[0] != 'a'){
       console.log(...data)
     }
   }
@@ -121,6 +156,11 @@ document.addEventListener('keypress', (e)=>{
   }
   if(e.code == "KeyF"){
     send('5', [spikeType, null])//spike
+    send('c', [1, rotation])
+    send('c', [0, rotation])
+  }
+  if(e.code == "KeyB"){
+    send('5', [22, null])//teleport
     send('c', [1, rotation])
     send('c', [0, rotation])
   }
