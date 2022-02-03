@@ -37,10 +37,13 @@ function init () {
     onmessage(msgpack.decode(new Uint8Array(m.data)))
     onmessage_backup(m)
   }
+
 }
 
+let tick = 0
 let toggleRecive = 0
 let toggleIntercept = 0
+let clicking = 0
 
 let toggleInsta = 0
 let mainSkin = 0
@@ -52,6 +55,8 @@ let position = {}
 let onWater = 0
 let onSnow = 0
 let spikeType = 6
+let healType = 0
+let toggleAutoHeal = 1
 
 function intercept (data) {
   if (data[0] != 2 && data[0] != '2' && data[0] != 'pp') {
@@ -89,13 +94,30 @@ function intercept (data) {
     if(data[1][0] == 23){
       spikeType = 7
     }
+    if(data[1][0] == 17){
+      healType = 1
+    }
+    if(data[1][0] == 18){
+      healType = 2
+    }
   }
 }
 function onmessage (data) {
   if(data[0] == 'h'){
-    hp = data[1][1]
     if(hp<=0){
       spikeType = 6
+      healType = 0
+    }else{
+      hp = data[1][1]
+      if(hp <= 75 && toggleAutoHeal){
+        send('5', [0, null])
+        send('c', [1, rotation])
+        send('c', [0, rotation])
+        send('5', [0, true])
+        if(clicking){
+          send('c', [1, rotation])
+        }
+      }
     }
   }
   if(data[0] == '33'){
@@ -139,7 +161,13 @@ function onmessage (data) {
 }
 // function loop(){
 //   requestAnimationFrame(loop)
-//   //console.log(hp)
+//   tick++
+//   if(hp <=70){//autoheal
+//     //console.log(hp)
+//     if(tick%2 == 0){
+      
+//     }
+//   }
 // }
 // loop()
 
@@ -147,6 +175,10 @@ document.addEventListener('keypress', (e)=>{
   if(e.code == "KeyI"){
     toggleInsta = (toggleInsta+1)%2
     console.log(toggleInsta)
+  }
+  if(e.code == "KeyZ"){
+    toggleAutoHeal = (toggleAutoHeal+1)%2
+    console.log(toggleAutoHeal)
   }
   if(e.code == "KeyP"){
     toggleIntercept = (toggleIntercept+1)%2
@@ -208,4 +240,12 @@ document.addEventListener('keydown', (e)=>{
       l++
     },50)
   }
+})
+
+document.addEventListener('mousedown', (e)=>{
+  clicking = 1
+})
+
+document.addEventListener('mouseup', (e)=>{
+  clicking = 0
 })
