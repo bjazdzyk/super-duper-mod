@@ -94,7 +94,9 @@ function intercept (data) {
 function onmessage (data) {
   if(data[0] == 'h'){
     hp = data[1][1]
-    if(hp<=0)
+    if(hp<=0){
+      spikeType = 6
+    }
   }
   if(data[0] == '33'){
     rotation = data[1][0][3]
